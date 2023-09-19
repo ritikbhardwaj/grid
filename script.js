@@ -42,6 +42,10 @@ class Cell {
         this._updateCell();
     }
 
+    getColor() {
+        return this._bgColor;
+    }
+
     _updateCell() {
         const [x,y] = this._pos;
         this._divInstance.style.left = x + 'px';
@@ -53,6 +57,7 @@ class Cell {
 }
 
 const container = document.getElementById('container');
+const container1 = document.getElementById('container1');
 // const c1 = new Cell(container);
 // c1.setColor(Color.RED);
 // c1.setSize(50);
@@ -65,10 +70,32 @@ class Grid {
     _cellSize = 25;
 
     constructor(gridContainer, gridSide) {
+        // set parent height and width
+        this._gridSide = gridSide;
+        gridContainer.style.width = this._gridSide*this._cellSize + this._gridSide + 2 + 'px';
+        gridContainer.style.height = this._gridSide*this._cellSize + this._gridSide + 2 + 'px';
         for(let i = 0; i < Math.pow(this._gridSide,2); i++) {
             this._gridCells.push(new Cell(gridContainer, this._cellSize));
         }
         this._calculateCellPositions();
+    }
+
+    getCellColor(cellPos) {
+        const [r, c] = cellPos;
+        const cellInstance = this._gridCells[(r-1)*this._gridSide + c-1];
+        return cellInstance.getColor();
+    }
+
+    setCellColor(cellPos, color) {
+        const [r,c] = cellPos;
+        if(r < 1 || c < 0 || r > this._gridSide || c > this._gridSide) {
+            throw new Error(`Invalid cell position x=${r}, y=${c}`);
+        }
+        const cellInstance = this._gridCells[(r-1)*this._gridSide + c-1];
+        cellInstance.setColor(color);
+        // 2,1
+        // (2-1)*5 + 1
+        // (3-1)*5 + 3
     }
 
     _calculateCellPositions() {
@@ -82,5 +109,13 @@ class Grid {
     }
 }
 
-const g1 = new Grid(container, 5);
+const g1 = new Grid(container, 20);
+// g1.setCellColor([1,-1], Color.RED);
+// setInterval(() => {
+//     let x = Math.floor(Math.random()*19+1);
+//     let y = Math.floor(Math.random()*19+1);
+//     if(g1.getCellColor([x,y]) !== Color.BLUE) {
+//         g1.setCellColor([x,y], Color.BLUE);
+//     }
+// }, 100)
 
