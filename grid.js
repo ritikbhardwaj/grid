@@ -28,6 +28,10 @@ class Cell {
         this._updateCell();
     }
 
+    eventHandler(eventType, fn) {
+        this._divInstance.addEventListener(eventType, fn);
+    }
+
     setSize(size) {
         this._size = size;
         this._updateCell();
@@ -58,7 +62,6 @@ class Cell {
 }
 
 const container = document.getElementById('container');
-const container1 = document.getElementById('container1');
 // const c1 = new Cell(container);
 // c1.setColor(Color.RED);
 // c1.setSize(50);
@@ -70,9 +73,11 @@ class Grid {
     _gridCells = [];
     _gridGutter = 1;
     _cellSize = 25;
+    _gridContainerInstance = null;
 
     constructor(gridContainer, gridSide, cellSize = 25, gridTitle = "Grid") {
         // set parent height and width
+        this._gridContainerInstance = gridContainer;
         this._gridSide = gridSide;
         this._cellSize = cellSize;
         gridContainer.style.width = this._gridSide*this._cellSize + this._gridSide + 2 + 'px';
@@ -81,16 +86,61 @@ class Grid {
             this._gridCells.push(new Cell(gridContainer, this._cellSize));
         }
         this._calculateCellPositions();
+        this._setGridCellsAttribute();
     }
 
     getGridSize() {
         return this._gridSide;
     }
 
-    getCellColor(cellPos) {
+    getCellInstance(cellPos) {
         const [r, c] = cellPos;
         const cellInstance = this._gridCells[(r-1)*this._gridSide + c-1];
-        return cellInstance.getColor();
+        return cellInstance;
+    }
+
+    _setGridCellsAttribute() {
+        for(let i = 0; i < this._gridCells.length; i++) {
+            // column = (i%gridSide)
+            // row = Math.floow(i/gridSide)
+            this._gridCells[i]._divInstance.setAttribute('data-col', i%this._gridSide);
+            this._gridCells[i]._divInstance.setAttribute('data-row', Math.floor(i/this._gridSide));
+        }
+    }
+
+    getCellColor(cellPos) {
+        return this.getCellInstance(cellPos).getColor();
+    }
+
+    triggerCellChangeEvent(fn) {
+        // trigger this fn when a change of cell happens
+        this._gridContainerInstance.addEventListener('mousemove', (event) => {
+            const cell = document.elementFromPoint(event.clientX, event.clientY);
+            const {row, col} = cell.dataset;
+            if(row && col) {
+                console.log(row,col);
+            }
+        })
+    }
+
+    bindToCellEvent(eventType, fn) {
+        for(const cell of this._gridCells) {
+            cell._divInstance.addEventListener(eventType, () => {
+                fn(cell);
+            })
+        }
+    }
+
+    triggerOnHover(fn) {
+        for(const cell of this._gridCells) {
+            fn(cell);
+            cell._divInstance.addEventListener('mouseover', () => {
+                cell._divInstance.style.backgroundColor = Color.RED;
+            })
+            cell._divInstance.addEventListener('mouseout', () => {
+                cell._divInstance.style.backgroundColor = Color.BLACK;
+            })
+        }
     }
 
     setCellColor(cellPos, color) {

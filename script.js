@@ -1,4 +1,4 @@
-const g1 = new Grid(container, 6, 80);
+const g1 = new Grid(container, 20, 30);
 
 function isQueenSafe(row, col, trueColor) {
     // vertically up
@@ -22,6 +22,8 @@ function isQueenSafe(row, col, trueColor) {
     return true;
 }
 
+// open Challenge: How to add a delay with each recusive call to a function.
+// Solution: Possible with generators.
 function printNQueens(row = 0, trueColor) {
     if(row == g1.getGridSize()) {
         return;
@@ -33,7 +35,34 @@ function printNQueens(row = 0, trueColor) {
             printNQueens(row + 1, trueColor);
         }
     }
-
 }
+
+g1.bindToCellEvent('click', (cellInstance) => {
+    console.log(cellInstance);
+})
+
+g1.triggerCellChangeEvent((event) => {
+    console.log(event);
+});
+
+g1.triggerOnHover((cellInstance) => {
+    console.log(cellInstance._pos);
+    cellInstance._divInstance.addEventListener('click', () => {
+        console.log(cellInstance._pos);
+    });
+});
+
+// g1.getCellInstance([1,1]).addEventListener('click', () => {
+//     console.log('click');
+// })
+// const cellInstance = g1.getCellInstance([1,1])._divInstance;
+// cellInstance.addEventListener('mouseover', () => {
+//     cellInstance.style.backgroundColor = Color.RED;
+//     console.log('in');
+// })
+// cellInstance.addEventListener('mouseout', () => {
+//     cellInstance.style.backgroundColor = Color.BLACK;
+//     console.log('out');
+// })
 
 printNQueens(1, Color.BLUE);
